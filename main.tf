@@ -1,6 +1,19 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
 
+data "aws_availability_zones" "available" {
+  state = "available"
+
+  filter {
+    name   = "zone-type"
+    values = ["availability-zone"]
+  }
+}
+
+data "aws_region" "current" { }
+
+
+
 provider "aws" {
   region = var.aws_region
 }
@@ -11,7 +24,8 @@ module "vpc" {
 
   cidr = var.vpc_cidr_block
 
-  azs             = ["us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d", "us-east-1e"]
+  #azs             = ["us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d", "us-east-1e"]
+  azs              = data.aws_availability_zones.available.names
   private_subnets = slice(var.private_subnet_cidr_blocks, 0, 2)
   public_subnets  = slice(var.public_subnet_cidr_blocks, 0, 2)
 
